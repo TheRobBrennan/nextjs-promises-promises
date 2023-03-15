@@ -61,6 +61,7 @@ const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
   const { query } = req;
   const { id } = query;
 
+  console.log(`\tSuccessfully processed request ${id}`);
   return res.status(200).json({
     data: {
       id,
