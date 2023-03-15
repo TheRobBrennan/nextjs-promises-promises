@@ -31,17 +31,15 @@ export default async function handler(
 
         // Fake an expensive operation (like archiving data)
         setTimeout(async () => {
-          console.log(`Completing request ${id}`);
+          console.log(`Processing request ${id}`);
 
           // DEVELOPMENT ONLY: Here is a simulated failure with an appropriate
           // promise rejection
           if (FAILURE_VALUE >= FAILURE_THRESHOLD) {
-            console.error(
-              `\tReceived failure value ${FAILURE_VALUE} and we have NOT handled it`
-            );
-
             // Do any server-side logic or clean-up here before rejecting the request
-            return reject(`Sorry - ID ${id} failed to successfully complete.`);
+            return reject(
+              `Sorry - ID ${id} failed to successfully complete with a failure value of ${FAILURE_VALUE}`
+            );
           }
 
           return resolve(handleGET(req, res));
@@ -63,6 +61,7 @@ const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
   const { query } = req;
   const { id } = query;
 
+  console.log(`\tSuccessfully processed request ${id}`);
   return res.status(200).json({
     data: {
       id,
