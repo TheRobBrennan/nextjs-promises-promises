@@ -41,9 +41,13 @@ export default async function handler(
   });
 }
 
-const handleGET = async (_: NextApiRequest, res: NextApiResponse) => {
+const handleGET = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { query } = req;
+  const { id } = query;
+
   return res.status(200).json({
     data: {
+      id,
       message: "Your request was successful.",
     },
     error: null,
