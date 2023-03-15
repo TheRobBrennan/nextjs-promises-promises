@@ -33,7 +33,7 @@ async function makeAPIRequest(job: SimulatedJobType) {
       })
       .catch((err) => {
         // If there was a server error, we need to reject and handle this
-        return reject(`Unable to successfully process ID ${job.id}`);
+        return reject(`Unable to successfully process ID ${job.id} - ${err}`);
       });
   });
 }
@@ -66,7 +66,7 @@ export default function Home() {
               .catch((err) => {
                 // Do any client-side logic here to let the user know the error is handled
                 console.log(
-                  `myPromises: ** HANDLE THE ERROR CASE - ${err} - ***`
+                  `myPromises: ** CLIENT-SIDE HANDLING OF THE ERROR CASE FOR ID ${simulatedJobs[i].id} ***`
                 );
               })
           );
@@ -85,7 +85,7 @@ export default function Home() {
               .catch((err) => {
                 // Do any client-side logic here to let the user know the error is handled
                 console.log(
-                  `mySequentialPromises: ** HANDLE THE ERROR CASE - ${err} - ***`
+                  `sequentialPromises: ** CLIENT-SIDE HANDLING OF THE ERROR CASE FOR ID ${simulatedJobs[i].id} ***`
                 );
               })
           );
