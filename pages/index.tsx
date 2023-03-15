@@ -6,20 +6,36 @@ import styles from "../styles/Home.module.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-function makeAPIRequest(setData, setLoading) {
-  console.log(`makeAPIRequest`);
-  fetch(`api/randomdelay?id=${Math.floor(Math.random() * 100)}`)
-    .then((res) => res.json())
-    .then((data) => {
-      console.log(`Received data: ${JSON.stringify(data, null, 2)}`);
-      setData(data);
-      setLoading(false);
-    });
+type SimulatedJobType = {
+  id: number;
+};
+
+const createSimulatedJobs = (numberOfJobs: number): SimulatedJobType[] => {
+  const arr: SimulatedJobType[] = [];
+
+  for (let i = 0; i < numberOfJobs; i++) {
+    const JOB_ID = i;
+    const simulatedJob = { id: JOB_ID };
+
+    arr.push(simulatedJob);
+  }
+
+  return arr;
+};
+
+async function makeAPIRequest(job: SimulatedJobType) {
+  return new Promise<void>((resolve) => {
+    fetch(`api/randomdelay?id=${job.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        resolve(data);
+      });
+  });
 }
 
 export default function Home() {
   const dataFetchedRef = useRef(false);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<SimulatedJobType[] | null>(null);
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -27,8 +43,46 @@ export default function Home() {
     if (dataFetchedRef.current) return;
     dataFetchedRef.current = true;
 
-    setLoading(true);
-    makeAPIRequest(setData, setLoading);
+    const createOurSimulatedJobs = async () => {
+      setLoading(true);
+
+      // Create our simulated jobs
+      const simulatedJobs = createSimulatedJobs(10);
+      console.log(simulatedJobs);
+
+      const myPromises = () => {
+        let promiseArray = [];
+        for (let i = 0; i < simulatedJobs.length; i++) {
+          promiseArray.push(
+            makeAPIRequest(simulatedJobs[i]).catch(console.error)
+          );
+        }
+        return promiseArray;
+      };
+
+      const mySequentialPromises = async () => {
+        let promiseArray = [];
+        for (let i = 0; i < simulatedJobs.length; i++) {
+          promiseArray.push(
+            await makeAPIRequest(simulatedJobs[i]).catch(console.error)
+          );
+        }
+        return promiseArray;
+      };
+
+      // Get ready, backend API. All the requests are being blasted your way here.
+      // Can your API, backend services, and backend datastores handle all of these at once?
+      const sendAllTheJobs = await Promise.all(myPromises());
+
+      // Be kind. This example will allow each job to process sequentially and
+      // will take more time to complete. On the upside, the load to our backend is light. 😇
+      const sequentialJobs = await Promise.all(await mySequentialPromises());
+
+      setData(simulatedJobs);
+      setLoading(false);
+    };
+
+    createOurSimulatedJobs();
   }, []);
 
   if (isLoading) return <p>Loading...</p>;
