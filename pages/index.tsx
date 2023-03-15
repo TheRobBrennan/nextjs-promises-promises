@@ -6,6 +6,17 @@ import styles from "../styles/Home.module.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
+function makeAPIRequest(setData, setLoading) {
+  console.log(`makeAPIRequest`);
+  fetch(`api/randomdelay?id=${Math.floor(Math.random() * 100)}`)
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(`Received data: ${JSON.stringify(data, null, 2)}`);
+      setData(data);
+      setLoading(false);
+    });
+}
+
 export default function Home() {
   const dataFetchedRef = useRef(false);
   const [data, setData] = useState(null);
@@ -17,13 +28,7 @@ export default function Home() {
     dataFetchedRef.current = true;
 
     setLoading(true);
-    fetch(`api/randomdelay?id=${Math.floor(Math.random() * 100)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(`Received data: ${JSON.stringify(data, null, 2)}`);
-        setData(data);
-        setLoading(false);
-      });
+    makeAPIRequest(setData, setLoading);
   }, []);
 
   if (isLoading) return <p>Loading...</p>;
